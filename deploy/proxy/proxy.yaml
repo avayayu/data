@@ -36,7 +36,7 @@ spec:
                     values:
                       - proxy
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
+          requiredDuringSchedulingRequiredDuringExecution:
             - topologyKey: "kubernetes.io/hostname"
       containers:
         - name: proxy
