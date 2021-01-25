@@ -1,0 +1,50 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: proxy
+  namespace: quant-data
+spec:
+  selector:
+    role: proxy
+  ports:
+    - protocol: "TCP"
+      port: 5010
+      targetPort: 5010
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy
+  namespace: quant-data
+spec:
+  selector:
+    matchLabels:
+      role: proxy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        role: proxy
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: In
+                    values:
+                      - proxy
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: proxy
+          image: 172.27.238.205:15000/proxy
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 5010
+          env:
+            - name: DB_CONN
+              value: "redis://redis/8"
