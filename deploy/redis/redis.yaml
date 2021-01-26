@@ -1,0 +1,77 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: redis-config
+  namespace: quant-data
+data:
+  redis-config: |
+    maxmemory 4mb
+    maxmemory-policy allkeys-lru
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-claim
+  namespace: quant-data
+spec:
+  storageClassName: nfs-storage #---需要与上面创建的storageclass的名称一致
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: quant-data
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      targetPort: 6379
+      nodePort: 36379
+  selector:
+    app: redis
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+  namespace: quant-data
+  labels:
+    app: redis
+spec:
+  nodeSelector:
+    isStable: "true"
+  containers:
+    - name: redis
+      image: redis:5.0.4
+      command: ["bash", "-c", "redis-server /redis-master/redis.conf"]
+      env:
+        - name: MASTER
+          value: "true"
+      ports:
+        - containerPort: 6379
+
+      resources:
+        limits:
+          cpu: "0.5"
+          memory: 500Mi
+      volumeMounts:
+        - mountPath: /redis-master-data
+          name: data
+        - mountPath: /redis-master
+          name: config
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: redis-claim
+    - name: config
+      configMap:
+        name: redis-config
+        items:
+          - key: redis-config
+            path: redis.conf
