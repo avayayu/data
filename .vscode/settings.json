@@ -48,7 +48,6 @@
   // },
   "git.ignoreLimitWarning": true,
   "python.languageServer": "Jedi",
-  "python.pythonPath": "D:\\Anaconda3\\envs\\py37\\python.exe",
   "python.linting.enabled": true,
   "python.formatting.provider": "yapf",
   "python.formatting.yapfPath": "yapf",
