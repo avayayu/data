@@ -55,4 +55,9 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
   },
+  "protoc": {
+    "options": [
+      "--proto_path=${workspaceRoot}",
+    ]
+  }
 }

@@ -1,4 +1,6 @@
 pylint
+flask
 akshare
 lxml
 wheel
+gunicorn
